@@ -1,0 +1,17 @@
+<script>
+	
+	function test(){
+		try{
+			console.log("running try");
+			throw("dummy exception");
+		}
+		catch(exp){
+			console.log(exp);
+			logMyErrors(exp);
+		}
+		finally{
+			console.log("in finally");
+		}	
+	}	
+	test();
+</script>
