@@ -1,0 +1,43 @@
+name: Postman Tests
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  postman-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start Express Server
+        run: npm start &   # Start the server in the background
+
+      - name: Wait for Server to Start
+        run: sleep 5  # Wait for 5 seconds to let the server start
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run Postman Collection
+        run: |
+          newman run postman/cicd.postman_collection.json \
+          --reporters cli,html \
+          --reporter-html-export postman/report.html
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: postman-test-report
+          path: postman/report.html
