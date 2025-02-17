@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  postman-tests:
+  postman-tests: #ci
     runs-on: ubuntu-latest
 
     steps:
@@ -44,3 +44,36 @@ jobs:
         with:
           name: postman-test-report
           path: postman/report.html
+
+  deploy-frontend: #cd
+    needs: postman-tests
+    runs-on: ubuntu-latest
+
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Install firebase cli
+        run: npm install -g firebase-tools
+
+      - name: install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+      
+      - name: build static files
+        run: |
+          cd frontend
+          npm run build
+      
+      - name: deploy to firebase
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          cd frontend
+          firebase deploy --token "$FIREBASE_TOKEN"
